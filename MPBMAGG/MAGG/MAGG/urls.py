@@ -20,6 +20,8 @@ from memeApp import views
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
+    path('predict_popularity/', views.predict_popularity, name='predict_popularity'),
+    # path("auth_callback/", views.auth_callback, name="auth_callback"),
     path("start_scraping/", views.start_scraping, name="start_scraping"),
     path("get_results/", views.get_results, name="get_results"),
     path('admin/', admin.site.urls),

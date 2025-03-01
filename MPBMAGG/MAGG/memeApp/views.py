@@ -8,9 +8,59 @@ import base64
 from PIL import Image
 from g4f.client import Client as G4FClient
 from django.views.decorators.csrf import csrf_exempt
+from sklearn.ensemble import RandomForestRegressor
 import json
-group_ids = [209379140, 214634115, 205549974]
-access_token = 'vk1.a.hqCGcuQig30UfhitNqrUczsWrcRVjAhOojxj5gwDOj2ioIe2JT98KbS8HwrQLWs5JNa2JcsplHwpB8gfMxt8SJo9d7aKcBgLD6TuaKakMjoEq_5k__lzb5pTnuoz0O3BnLpiH9FEbwkA2gQ_rJLdrVVauiL0CPrF4kKGSBjnChHE8lIx-A1pAGNowkRNTn-p6uH_CgN3rq7xEJlaw3RTbw'
+
+# access_token = 'vk1.a.hqCGcuQig30UfhitNqrUczsWrcRVjAhOojxj5gwDOj2ioIe2JT98KbS8HwrQLWs5JNa2JcsplHwpB8gfMxt8SJo9d7aKcBgLD6TuaKakMjoEq_5k__lzb5pTnuoz0O3BnLpiH9FEbwkA2gQ_rJLdrVVauiL0CPrF4kKGSBjnChHE8lIx-A1pAGNowkRNTn-p6uH_CgN3rq7xEJlaw3RTbw'
+vk_redir = "http://127.0.0.1:8000/auth_callback/"
+vk_secret = "QMeBIqE0DzM4ofSGOIAO"
+vkapp_id = "52649878"
+df = pd.read_csv("scraping_results.csv")
+features = ["классические", "черный юмор", "политика", "постирония", "жиза", "шаблонные", "современные", "старые",
+            "мудро"]
+X = df[features]
+y = df["popularity"]
+model = RandomForestRegressor(n_estimators=100, random_state=42)
+model.fit(X, y)
+
+
+@csrf_exempt
+def predict_popularity(request):
+    print("test kapec")
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        selected_tags = data.get('selectedTags', [])
+        print("TEST JOSKY")
+        # Создание словаря для новых постов
+        new_post = {tag: 1 if tag in selected_tags else 0 for tag in features}
+        X_new = pd.DataFrame([new_post])
+
+        # Прогнозирование популярности
+        prediction = model.predict(X_new)[0]
+
+        return JsonResponse({"prediction": prediction})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+# получение пабликов пользователя при входе через вк
+def auth_callback(request):
+    code = request.GET.get("code")
+    if not code:
+        return JsonResponse({"error": "Не получили код"}, status=400)
+    token_url = f"https://oauth.vk.com/access_token?client_id={vkapp_id}&client_secret={vk_secret}&redirect_uri={vk_redir}&code={code}"
+    response = requests.get(token_url).json()
+    access_token = response.get("access_token")
+    user_id = response.get("user_id")
+
+    if not access_token:
+        return JsonResponse({"error": "Failed to get access token"}, status=400)
+
+    # Получаем список пабликов пользователя
+    groups_url = f"https://api.vk.com/method/groups.get?user_id={user_id}&access_token={access_token}&extended=1&v=5.131"
+    groups_response = requests.get(groups_url).json()
+
+    return JsonResponse(groups_response)
 
 
 # ну это просто запрос к вк апи на получение Count кол-а постов вызывается только в start_scraping
@@ -19,6 +69,8 @@ def get_vk_posts(group_id, count=25):
     params = {"access_token": access_token, "v": "5.131", "owner_id": f"-{group_id}", "count": count}
     response = requests.get(url, params=params).json()
     return response.get("response", {}).get("items", [])
+
+
 
 # генерит теги по каждому полученному посту
 def generate_tags(image_urls, text, tags_text):
@@ -42,6 +94,9 @@ def generate_tags(image_urls, text, tags_text):
             return res
             break
         return tags
+
+import re
+
 def gpt_tesis(text):
     client = G4FClient()
     for i in range(10):  # Пробуем максимум 10 раз
@@ -52,14 +107,19 @@ def gpt_tesis(text):
         )
         res = response.choices[0].message.content.strip()
 
-        if res and 'Model' not in res and 'error' not in res and 'chat' not in res and len(res.split("|")) > 1:
+        # Обрабатываем ответ GPT
+        if res and 'Model' not in res and 'error' not in res and 'chat' not in res and 'date: {' not in res:
             print("Ответ GPT получен!")
-            return res.split("|")  # Возвращаем список отдельных пунктов
+            # Удаляем лишние данные (например, потоковые фрагменты)
+            res = re.sub(r'data:\s*\{.*?"content":"(.*?)"\}', r'\1', res)  # Удаляем потоковые данные
+            res = res.replace('data: {"content":"', '').replace('"}', '')  # Удаляем оставшиеся фрагменты
+            return res.split("|")  # Разделяем ответ на отдельные пункты
 
     return ["Ошибка анализа от GPT"]
 
 @csrf_exempt # фктч, включает экспериментальный режим, что бы в консоли не ругалось
 def start_scraping(request):
+    group_ids = [209379140, 214634115, 205549974, 169473268, 92876084, 109575676]
     if request.method == "POST":
         all_posts = []
         tag_categories = ["классические", "черный юмор", "политика", "постирония", "жиза", "шаблонные", "современные",
@@ -92,11 +152,12 @@ def start_scraping(request):
                 })
 
         df = pd.DataFrame(all_posts)
-        df.to_csv("scraping_results.csv", index=False) # по окончанию скрапинга и определения тегов сохраняем всё в csv 
+        df.to_csv("scraping_results.csv", index=False) # по окончанию скрапинга и определения тегов сохраняем всё в csv
         print("good") # вообще можно и в эксель но как-то без разницы
         return JsonResponse({"status": "ok"}) # возвращаем js ok что бы перешёл в get_results
     print("error")
     return JsonResponse({"status": "error"}, status=400)
+
 
 
 def get_results(request):
@@ -112,6 +173,7 @@ def get_results(request):
 # Create your views here.
 def index(request):
     return render(request, 'index.html')
+
 def own_test(request):
     return render(request, 'OwnTest.html')
 
@@ -163,7 +225,9 @@ def Analysis(request):
         "Твоя задача — дать аналитический вывод. "
         "Опиши, какие тренды видны, какие темы чаще становятся популярными, а какие теряют популярность. "
         "Каждый вывод разделяй символом '|'. Нумеровать выводы не надо. Не пиши что-то по типу 'Анализируя популярность тегов мемов, можно выделить следующие тренды и темы: ', пиши сразу вывод"
-        f"Таблица: {tablo}")
+        f"Таблица: {tablo}"
+    )
+
     gpt_tendentions = gpt_tesis(
         "Ты анализируешь мемы и их популярность. "
         "Тебе дана таблица тегов с их популярностью. "
@@ -172,12 +236,14 @@ def Analysis(request):
         "Твоя задача — дать аналитику по тенденциям мемов, какие могут стать популярными или наоборот уменьшиться в популярности. "
         "Опиши, какие тренды увядают, а какие темы становятся популярными. "
         "Каждый вывод разделяй символом '|'. Нумеровать выводы не надо. Не пиши что-то по типу 'Анализируя популярность тегов мемов, можно выделить следующие тренды и темы: ', пиши сразу вывод"
-        f"Таблица: {tablo}")
+        f"Таблица: {tablo}"
+    )
+
     return render(request, 'Analysis.html', {
         "tablo": tablo,
         "labels": labels,
         "data": data,
-        "reaction": gpt_reaction,
-        "tendentions": gpt_tendentions,
+        "reaction": gpt_reaction,  # Передаем обработанный список выводов
+        "tendentions": gpt_tendentions,  # Передаем обработанный список выводов
         "top_memes": top_memes  # Передаем топ-3 мемов в шаблон
     })

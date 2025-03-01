@@ -1,6 +1,4 @@
 
-
-
 document.addEventListener("DOMContentLoaded", function () {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
@@ -36,7 +34,7 @@ function updateResults() {
                 tagsList.innerHTML = "<h1 class='h1'>Топ-10 тегов:</h1>";
                 let labels = [];
                 let values = [];
-                
+
                 data.top_tags.forEach(tag => {
                     let popularityLabel = "обычный";
                     if (tag.popularity > 1.0) {

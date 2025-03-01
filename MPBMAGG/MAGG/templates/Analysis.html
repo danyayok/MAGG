@@ -14,45 +14,25 @@
     <div class="fn-img">
     <img src="{% static 'MAGGf.jpg' %}" class="" alt="Шапочка">
     </div>
-    <header class="container-md bg-body-tertiary text-center rounded shadow p-2 mx-auto m-5">
-                <div class="row mx-auto p-1 ">
-                    <div class="col">
-                        <label for="btn-as" class="custom-file-upload p-mn mb-2">
-                            Анализ по TG
-                        </label>
-                        <input type="button" id="btn-as">
-                    </div>
-                    <div class="col">
-                            <form method="post">
-                                {% csrf_token %}
-                                <button type="button" id="btn-vk" class="custom-file-upload p-mn">
-                                    Анализ по VK
-                                </button>
-                            </form>
-                    </div>
-                    <div class="col">
-                        <label for="btn-as" class="custom-file-upload p-mn">
-                            Анализ по YT shorts
-                        </label>
-                        <input type="button" id="btn-as">
-                    </div>
-                    <div class="col">
-                        <button type="click" id="make-sg-as" class="custom-file-upload p-mn">Общая аналитика</button>
-                    </div>
-                    <form method="submit" class="col" enctype="multipart/form-data">
-                        <label for="btn-as" class="custom-file-upload p-mn">
-                            Загрузить свой мем
-                        </label>
-                        <input type="submit" id="btn-as">
-                    </form>
-                </div>
-    </header>
+    <div class="container text-center my-5">
+        <div class="row shadow p-4 mb-5 bg-body-tertiary rounded">
+            <div class="col-lg">
+                <a href="http://127.0.0.1:8000/Owntest" class="a-mn">О нас</a>
+            </div>
+            <div class="col-lg-8 ">
+                <a href="http://127.0.0.1:8000/Analysis" class="a-mn">Сделать анализ</a>
+            </div>
+            <div class="col-lg">
+                <a href="http://127.0.0.1:8000" class="a-mn">Главная</a>
+            </div>
+        </div>
+    </div>
     <div class="container-md bg-body-tertiary text-center rounded shadow p-2 mx-auto m-5">
                     <div class="row align-items-start mx-1">
-                        <div class="center_graph">
+                        <div class="col-12 text-center ">
                             <h1 class="display-5">График</h1>
-                            <div id="bd">
-                                <canvas id="myChart"></canvas width=100>
+                            <div id="bd" class="bd mb-2">
+                                <canvas id="myChart"></canvas>
                                 <script>
                                     // Получаем данные из Django
                                     const labels = {{ labels|safe }};
@@ -73,8 +53,8 @@
                                             }]
                                         },
                                         options: {
-                                            responsive: true, 
-                                            maintainAspectRatio: false, 
+                                            responsive: true, // Делаем график адаптивным
+                                            maintainAspectRatio: false, // Отключаем сохранение соотношения сторон
                                             scales: {
                                                 y: {
                                                     beginAtZero: true
@@ -104,10 +84,10 @@
                             </div>
                         </div>
                     </div>
-                <div class="row my-5 mx-5 text-center align-items-center">
+                <div class="row my-5 mx-5 text-center align-items-center g-5">
                             <h1 class="display-5">Топ-3 популярных мема</h1>
                                         {% for meme in top_memes %}
-                                        <div class="col p-3">
+                                        <div class="col">
                                             <div class="card shadow rounded" style="width: 20rem">
                                                 <img src="{{ meme.image_url.0 }}" class="card-img-top" alt="{{ meme.text }}">
                                                 <div class="card-body">
@@ -172,19 +152,33 @@
                 </div>
     </div>
 
-    <div class="container text-center my-5">
-        <div class="row shadow p-4 mb-5 bg-body-tertiary rounded">
-            <div class="col-lg">
-                <a href="" class="a-mn">О нас</a>
-            </div>
-            <div class="col-lg-8 ">
-                <a href="http://127.0.0.1:8000/Analysis" class="a-mn">Сделать анализ</a>
-            </div>
-            <div class="col-lg">
-                <a href="http://127.0.0.1:8000" class="a-mn">Главная</a>
-            </div>
-        </div>
-    </div>
+    <header class="container-md bg-body-tertiary text-center rounded shadow p-2 mx-auto m-5">
+                <div class="row mx-auto p-1 ">
+<!--                    <div class="col">-->
+<!--                        <label for="btn-as" class="custom-file-upload p-mn mb-2">-->
+<!--                            Анализ по TG-->
+<!--                        </label>-->
+<!--                        <input type="button" id="btn-as">-->
+<!--                    </div>-->
+                    <div class="col">
+                            <form method="post">
+                                {% csrf_token %}
+                                <button type="button" id="btn-vk" class="custom-file-upload p-mn">
+                                    Анализ по VK
+                                </button>
+                            </form>
+                    </div>
+                    <div class="col">
+                        <label for="btn-as" class="custom-file-upload p-mn">
+                            Анализ по вашему VK
+                        </label>
+                        <input type="button" id="btn-as">
+                    </div>
+<!--                    <div class="col">-->
+<!--                        <button type="click" id="make-sg-as" class="custom-file-upload p-mn">Общая аналитика</button>-->
+<!--                    </div>-->
+                </div>
+    </header>
     <script src='static/js/main.js'></script>
 </body>
 </html>
