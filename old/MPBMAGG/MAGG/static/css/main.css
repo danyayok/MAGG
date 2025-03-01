@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+
+.a-mn{
+    font-family: 'Montserrat';
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+    transition: 0.3s ease-in;
+    font-size: large;
+}
+
+.p-mn{
+    font-family: 'Montserrat';
+    font-weight: 400;
+    color: black;
+}
+
+a:hover{
+    color: #7443ff;
+}
+
+a:active{
+    color: #4d0dff;
+}
+
+/* .ol-as{
+    border-color: black ;
+
+} */
+
+#btn-as {
+    display: none;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: black;
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.custom-file-upload:hover {
+    background-color: #7443ff;
+}
+
+.custom-file-upload:active {
+    background-color: #4d0dff;
+}
+
+
+.fn-img{
+    width: 100%;
+    height: 30vh; 
+    overflow: hidden; 
+    position: relative; 
+    background-size: cover; 
+}
+
+.bd img, .fn-img img{
+    width: 100%;
+    height: 100%; 
+    object-fit: cover; 
+    object-position: center; 
+}
+
+#bd{
+    width: 100%;
+    height: 30em;
+    border: 1px solid #000;
+}
+
+#myChart{
+    display: block; /* Убирает лишние отступы */
+}
+.center_graph{
+width: 100%;
+height: 40em;
+}
