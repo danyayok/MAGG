@@ -1,3 +1,5 @@
+P.S. это был проект на хакатон, получили 3 место
+
 MAGG
 MAGG Meme Analysis Graph Generator
 
