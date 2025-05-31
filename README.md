@@ -9,10 +9,11 @@ MAGG Meme Analysis Graph Generator
 3. Предоставить возможность узнать какая реакция от общества будет на ваш мем.
 
 Инструкция по запуску:
+(желательно удалить папку old)
 1. Открыть консоль
-2. Прописать .venv/Scripts/activate
-3. Прописать cd MAGG
-4. Прописать python manage.py runserver
+3. Прописать .venv/Scripts/activate
+4. Прописать cd MAGG
+5. Прописать python manage.py runserver
 
 Используемые технологии:
 1. Django
