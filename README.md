@@ -21,6 +21,6 @@ MAGG Meme Analysis Graph Generator
 4. Java Script
 5. Python
 
-
+(на странице с графиком есть кнопка "Анализ по VK" там собираются посты из пабликов, долго проходит)
 
 Презентация: https://docs.google.com/presentation/d/1EIYu6GwxY7wfWbXHRQFNEpSSMkfbOeQOsfy5Mh9ck9E/edit?usp=sharing
